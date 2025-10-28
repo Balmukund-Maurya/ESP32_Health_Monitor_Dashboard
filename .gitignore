@@ -1,0 +1,12 @@
+# Ignore sensitive config
+firebaseConfig.js
+
+# Ignore system files
+.DS_Store
+
+# Ignore IDE folders
+.vscode/
+.idea/
+
+# Ignore temporary files
+*.log

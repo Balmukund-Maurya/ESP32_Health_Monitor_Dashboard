@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ESP32 Health Monitor Dashboard</title>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Firebase v9 (modular) -->
+  <script type="module" src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js"></script>
+  <script type="module" src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js"></script>
+
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: radial-gradient(circle at top, #0a0f24, #000);
+      color: #fff;
+      text-align: center;
+      margin: 0;
+      padding: 0 10px;
+    }
+
+    h1 {
+      margin-top: 20px;
+      font-size: 2em;
+      color: #00eaff;
+      text-shadow: 0 0 15px #00eaff;
+      animation: glow 2s infinite ease-in-out;
+    }
+
+    @keyframes glow {
+      0% { text-shadow: 0 0 10px #00eaff; }
+      50% { text-shadow: 0 0 20px #00eaff; }
+      100% { text-shadow: 0 0 10px #00eaff; }
+    }
+
+    /* ==== Cards ==== */
+    .cards {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 25px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 15px;
+      box-shadow: 0 0 15px rgba(0, 234, 255, 0.2);
+      flex: 1 1 140px; /* flexible width */
+      max-width: 180px;
+      padding: 15px;
+      transition: 0.3s;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 0 25px rgba(0, 234, 255, 0.4);
+    }
+
+    .card h2 {
+      font-size: 1em;
+      color: #00eaff;
+      margin-bottom: 8px;
+    }
+
+    .card p {
+      font-size: 1.3em;
+      font-weight: bold;
+      color: #fff;
+    }
+
+    /* ==== Graphs ==== */
+    .graphs {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      margin: 35px auto;
+      width: 100%;
+    }
+
+    .graph-container {
+      flex: 1 1 300px; /* flexible min width for responsiveness */
+      max-width: 600px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 15px;
+      padding: 15px;
+      box-shadow: 0 0 25px rgba(0, 234, 255, 0.15);
+    }
+
+    .graph-container h2 {
+      font-size: 1.2em;
+      margin-bottom: 10px;
+    }
+
+    canvas { margin-top: 10px; }
+
+    footer {
+      margin-top: 30px;
+      color: #888;
+      font-size: 0.9em;
+    }
+
+    /* ==== Responsive adjustments ==== */
+    @media (max-width: 600px) {
+      h1 { font-size: 1.6em; }
+      .card p { font-size: 1.1em; }
+      .graph-container { flex: 1 1 100%; max-width: 100%; padding: 10px; }
+    }
+
+    @media (min-width: 601px) and (max-width: 900px) {
+      .graph-container { flex: 1 1 45%; } /* 2 per row on tablets */
+    }
+
+    @media (min-width: 901px) {
+      .graph-container { flex: 1 1 45%; } /* 2 per row on laptops */
+    }
+
+  </style>
+</head>
+<body>
+
+  <h1>Health Monitor Dashboard</h1>
+
+  <!-- Live Sensor Data Cards -->
+  <div class="cards">
+    <div class="card"><h2>Heart Rate</h2><p id="hrValue">--</p></div>
+    <div class="card"><h2>SpO₂</h2><p id="spo2Value">--</p></div>
+    <div class="card"><h2>Room Temp</h2><p id="roomTempValue">--</p></div>
+    <div class="card"><h2>Humidity</h2><p id="humidityValue">--</p></div>
+    <div class="card"><h2>Light</h2><p id="lightValue">--</p></div>
+  </div>
+
+  <!-- Graphs -->
+  <div class="graphs">
+    <div class="graph-container">
+      <h2>💓 Heart Rate (BPM)</h2>
+      <canvas id="hrChart"></canvas>
+    </div>
+
+    <div class="graph-container">
+      <h2>🩸 SpO₂ (%)</h2>
+      <canvas id="spo2Chart"></canvas>
+    </div>
+
+    <div class="graph-container">
+      <h2>🌡 Room Temp (°C)</h2>
+      <canvas id="roomTempChart"></canvas>
+    </div>
+
+    <div class="graph-container">
+      <h2>💧 Humidity (%)</h2>
+      <canvas id="humidityChart"></canvas>
+    </div>
+  </div>
+
+  <footer>©️ 2025 — IoT Based Health Monitoring System</footer>
+
+  <script type="module">
+    import { firebaseConfig } from "./firebaseConfig.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
+
+   
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+    const dbRef = ref(database, "sensorData");
+
+    const hrEl = document.getElementById("hrValue");
+    const spo2El = document.getElementById("spo2Value");
+    const roomTempEl = document.getElementById("roomTempValue");
+    const humidityEl = document.getElementById("humidityValue");
+    const lightEl = document.getElementById("lightValue");
+
+    const createChart = (ctx, label, borderColor, bgColor) => new Chart(ctx, {
+      type: 'line',
+      data: { labels: [], datasets: [{ label, data: [], borderColor, backgroundColor: bgColor, fill: true, tension: 0.3 }] },
+      options: {
+        scales: {
+          y: { beginAtZero: false, ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+          x: { ticks: { color: '#aaa' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+        },
+        plugins: { legend: { labels: { color: '#fff' } } },
+        animation: { duration: 400 }
+      }
+    });
+
+    const charts = {
+      hr: createChart(document.getElementById('hrChart').getContext('2d'), 'Heart Rate', '#00eaff', 'rgba(0,234,255,0.2)'),
+      spo2: createChart(document.getElementById('spo2Chart').getContext('2d'), 'SpO₂', '#ff4d6d', 'rgba(255,77,109,0.2)'),
+      roomTemp: createChart(document.getElementById('roomTempChart').getContext('2d'), 'Room Temp', '#00ff94', 'rgba(0,255,148,0.2)'),
+      humidity: createChart(document.getElementById('humidityChart').getContext('2d'), 'Humidity', '#00bfff', 'rgba(0,191,255,0.2)')
+    };
+
+    const maxPoints = 15;
+
+    onValue(dbRef, (snapshot) => {
+      const data = snapshot.val();
+      if (!data) return;
+
+      hrEl.textContent = data.heartRate ?? "--";
+      spo2El.textContent = data.SpO2 ?? data.spo2 ?? "--";
+      roomTempEl.textContent = data.bodyTemp ?? data.temperature ?? "--";
+      humidityEl.textContent = data.humidity ?? "--";
+      lightEl.textContent = data.lightLevel ?? data.light ?? "--";
+
+      const now = new Date().toLocaleTimeString();
+
+      const updateChart = (chart, value) => {
+        if(chart.data.labels.length >= maxPoints){
+          chart.data.labels.shift();
+          chart.data.datasets[0].data.shift();
+        }
+        chart.data.labels.push(now);
+        chart.data.datasets[0].data.push(value ?? 0);
+        chart.update();
+      };
+
+      updateChart(charts.hr, data.heartRate);
+      updateChart(charts.spo2, data.SpO2 ?? data.spo2);
+      updateChart(charts.roomTemp, data.bodyTemp ?? data.temperature);
+      updateChart(charts.humidity, data.humidity);
+    });
+  </script>
+
+</body>
+</html>
