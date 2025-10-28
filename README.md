@@ -43,4 +43,4 @@ A real-time **IoT Health Monitoring System** using **ESP32**, **Firebase Realtim
    git clone https://github.com/Balmukund-Maurya/ESP32_Health_Monitor_Dashboard.git
 1. To see the Demo Dashboard open the website:
     ```bash
-    Website https://mydashboard.gt.tc
+    https://mydashboard.gt.tc
