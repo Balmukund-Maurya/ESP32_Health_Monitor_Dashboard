@@ -28,7 +28,15 @@ A real-time **IoT Health Monitoring System** using **ESP32**, **Firebase Realtim
 - **Firebase JS SDK (v9 modular)**
 
 ---
+## Screenshots  
 
+**🔹 Demo:**  
+![Demo](assets/Circuit.jpeg)  
+
+**🔹 Dashboard:**  
+![Dashboard](assets/Dashboard.png) 
+
+---
 ## Setup Instructions
 1. Clone this repository:
    ```bash
