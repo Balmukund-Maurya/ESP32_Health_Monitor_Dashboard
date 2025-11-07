@@ -83,9 +83,7 @@ The `dashboard/index.html` connects to Firebase and displays:
 You can host it on **GitHub Pages** or open it locally.
 
 **Dashboard Preview:**
-<video width="640" controls>
-  <source src="assets/finaldemo.mp4" type="video/mp4">
-</video>
+![Dashboard Preview](assets/demo.mp4)
 
 **Circuit Preview:**
 ![Circuit Preview](assets/Circuit.jpeg)
