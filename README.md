@@ -53,7 +53,7 @@ Power all sensors with **3.3V & GND**.
 
 ---
 
-## ☁️ Firebase Setup
+## Firebase Setup
 
 1. Go to [Firebase Console](https://console.firebase.google.com/)
 2. Create a new project → Enable **Realtime Database**
@@ -82,10 +82,10 @@ The `dashboard/index.html` connects to Firebase and displays:
 
 You can host it on **GitHub Pages** or open it locally.
 
-**Preview:**
-![Dashboard Preview](assets/finaldemo.mp4)
+**Dashboard Preview:**
+![Dashboard Preview](https://github.com/Balmukund-Maurya/ESP32_Health_Monitor_Dashboard/blob/main/assets/finaldemo.mp4)
 
-**Preview:**
+**Circuit Preview:**
 ![Circuit Preview](assets/Circuit.jpeg)
 ---
 
