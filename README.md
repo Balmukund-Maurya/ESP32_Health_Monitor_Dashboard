@@ -83,8 +83,9 @@ The `dashboard/index.html` connects to Firebase and displays:
 You can host it on **GitHub Pages** or open it locally.
 
 **Dashboard Preview:**
-<video src="https://github.com/Balmukund-Maurya/ESP32_Health_Monitor_Dashboard/blob/main/assets/finaldemo.mp4" width="352" height="720"></video>
-![Dashboard Preview](https://github.com/Balmukund-Maurya/ESP32_Health_Monitor_Dashboard/blob/main/assets/finaldemo.mp4)
+<video width="640" controls>
+  <source src="assets/finaldemo.mp4" type="video/mp4">
+</video>
 
 **Circuit Preview:**
 ![Circuit Preview](assets/Circuit.jpeg)
