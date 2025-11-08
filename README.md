@@ -82,6 +82,12 @@ The `dashboard/index.html` connects to Firebase and displays:
 
 You can host it on **GitHub Pages** or open it locally.
 
+**Firebase Data**
+```json
+{
+  https://mydashboard.gt.tc
+}
+
 **Dashboard Preview:**
 ![Dashboard Preview](assets/Dashboard.png)
 ![Dashboard Preview](assets/demo.mp4)
